@@ -33,7 +33,7 @@ echo 0 > /tmp/net_connected
 
 LOGGER "BOOTING" "Restoring Audio State"
 cp -f "/opt/muos/device/$DEVICE/control/asound.state" "/var/lib/alsa/asound.state"
-alsactl -U restore
+alsactl -f /var/lib/alsa/asound.state -U restore audiocodec
 
 LOGGER "BOOTING" "Restoring Audio Volume"
 VOLUME=$(parse_ini "$CONFIG" "settings.advanced" "volume")
