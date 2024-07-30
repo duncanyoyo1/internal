@@ -88,6 +88,13 @@ else
 	DRASTIC_STEWARD_SAVESTATE_DIR=""
 fi
 
+# Define Pico8 source directories
+if [ -d "$DC_STO_ROM_MOUNT/MUOS/emulator/pico8/pico8_64" ]; then
+	PICO8_SAVE_DIR="$DC_STO_ROM_MOUNT/MUOS/init/MUOS/emulator/pico8/.lexaloffle/pico-8/"
+else
+	PICO8_SAVE_DIR=""
+fi
+
 DEST_FILE="$DEST_DIR/muOS-Save-$(date +"%Y-%m-%d_%H-%M").zip"
 
 TO_BACKUP="
@@ -102,6 +109,7 @@ $DRASTIC_STEWARD_SAVE_DIR
 $DRASTIC_STEWARD_SAVESTATE_DIR
 $DC_NV
 $DC_VMU
+$PICO8_SAVE_DIR
 "
 VALID_BACKUP=$(mktemp)
 
