@@ -76,9 +76,18 @@ SD1="$(GET_VAR "device" "storage/rom/mount")/ROMS"
 SD2="$(GET_VAR "device" "storage/sdcard/mount")/ROMS"
 USB="$(GET_VAR "device" "storage/usb/mount")/ROMS"
 
-P8_DIR=$(sed -n '2p' /run/muos/storage/info/core/pico-8/core.cfg)
+P8_DIR=""
+STORAGE_DIR=""
 for DIR in "$USB" "$SD2" "$SD1"; do
-	[ -d "$DIR/$P8_DIR" ] && STORAGE_DIR="$DIR/$P8_DIR" && break
+    if [ -d "$DIR/PICO" ]; then
+        P8_DIR="PICO"
+        STORAGE_DIR="$DIR/$P8_DIR"
+        break
+    elif [ -d "$DIR/PICO-8" ]; then
+        P8_DIR="PICO-8"
+        STORAGE_DIR="$DIR/$P8_DIR"
+        break
+    fi
 done
 [ -z "$STORAGE_DIR" ] && exit 1
 
@@ -88,18 +97,21 @@ BOXART_DIR="/run/muos/storage/info/catalogue/PICO-8/box"
 
 # TODO: Work out what these other fields mean?! (maybe useful?)
 while IFS='|' read -r _ RAW_NAME _ _ _ GOOD_NAME; do
-	[ -z "$GOOD_NAME" ] || [ -z "$RAW_NAME" ] && continue
-	RAW_NAME=$(echo "$RAW_NAME" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/[[:space:]]\+//g')
-	GOOD_NAME=$(echo "$GOOD_NAME" | sed -E 's/.*\|//;s/^[[:space:]]+|[[:space:]]+$//;s/\b(.)/\u\1/g')
+    [ -z "$GOOD_NAME" ] || [ -z "$RAW_NAME" ] && continue
 
-	P8_EXT="p8.png"
-	FAV_FILE="$CART_DIR/$RAW_NAME.$P8_EXT"
-	DEST_FILE="$STORAGE_DIR/$GOOD_NAME.$P8_EXT"
-	BOXART_FILE="$BOXART_DIR/$GOOD_NAME.$P8_EXT"
+    RAW_NAME=$(echo "$RAW_NAME" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/[[:space:]]\+//g')
+    GOOD_NAME=$(echo "$GOOD_NAME" | sed -E 's/.*\|//;s/^[[:space:]]+|[[:space:]]+$//;s/\b(.)/\u\1/g')
 
-	[ ! -f "$FAV_FILE" ] && FAV_FILE="$CART_DIR/${RAW_NAME%${RAW_NAME#?}}/$RAW_NAME.$P8_EXT"
-	if [ -f "$FAV_FILE" ]; then
-		[ ! -f "$DEST_FILE" ] && cp "$FAV_FILE" "$DEST_FILE"
-		[ ! -f "$BOXART_FILE" ] && cp "$FAV_FILE" "$BOXART_FILE"
-	fi
+    P8_EXT="p8.png"  # Source extension
+    DEST_EXT="p8"    # Destination extension for ROMs
+    PNG_EXT="png"    # Extension for boxart
+
+    FAV_FILE="$CART_DIR/$RAW_NAME.$P8_EXT"
+    DEST_FILE="$STORAGE_DIR/$GOOD_NAME.$DEST_EXT"
+    BOXART_FILE="$BOXART_DIR/$GOOD_NAME.$PNG_EXT"
+
+    if [ -f "$FAV_FILE" ]; then
+        cp "$FAV_FILE" "$DEST_FILE"
+        cp "$FAV_FILE" "$BOXART_FILE"
+    fi
 done <"$FAVOURITE"
