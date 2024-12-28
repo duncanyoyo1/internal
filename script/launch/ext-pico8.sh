@@ -100,12 +100,11 @@ while IFS='|' read -r _ RAW_NAME _ _ _ GOOD_NAME; do
     [ -z "$GOOD_NAME" ] || [ -z "$RAW_NAME" ] && continue
     RAW_NAME=$(echo "$RAW_NAME" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/[[:space:]]\+//g')
     GOOD_NAME=$(echo "$GOOD_NAME" | sed -E 's/.*\|//;s/^[[:space:]]+|[[:space:]]+$//;s/\b(.)/\u\1/g')
-    P8_EXT="p8.png"  # Source extension
-    DEST_EXT="p8"    # Destination extension for ROMs
-    PNG_EXT="png"    # Extension for boxart
+    P8_EXT="p8.png"
+    DEST_EXT="p8"
+    PNG_EXT="png"
     FAV_FILE=""
 
-    # Check root and one level of subfolders in CART_DIR
     for DIR in "$CART_DIR" "$CART_DIR"/*; do
         if [ -f "$DIR/$RAW_NAME.$P8_EXT" ]; then
             FAV_FILE="$DIR/$RAW_NAME.$P8_EXT"
