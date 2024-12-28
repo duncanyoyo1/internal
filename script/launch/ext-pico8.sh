@@ -119,4 +119,3 @@ while IFS='|' read -r _ RAW_NAME _ _ _ GOOD_NAME; do
         cp "$FAV_FILE" "$BOXART_FILE"
     fi
 done <"$FAVOURITE"
-
