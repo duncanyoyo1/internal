@@ -98,20 +98,25 @@ BOXART_DIR="/run/muos/storage/info/catalogue/PICO-8/box"
 # TODO: Work out what these other fields mean?! (maybe useful?)
 while IFS='|' read -r _ RAW_NAME _ _ _ GOOD_NAME; do
     [ -z "$GOOD_NAME" ] || [ -z "$RAW_NAME" ] && continue
-
     RAW_NAME=$(echo "$RAW_NAME" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/[[:space:]]\+//g')
     GOOD_NAME=$(echo "$GOOD_NAME" | sed -E 's/.*\|//;s/^[[:space:]]+|[[:space:]]+$//;s/\b(.)/\u\1/g')
-
     P8_EXT="p8.png"  # Source extension
     DEST_EXT="p8"    # Destination extension for ROMs
     PNG_EXT="png"    # Extension for boxart
+    FAV_FILE=""
 
-    FAV_FILE="$CART_DIR/$RAW_NAME.$P8_EXT"
+    # Check root and one level of subfolders in CART_DIR
+    for DIR in "$CART_DIR" "$CART_DIR"/*; do
+        if [ -f "$DIR/$RAW_NAME.$P8_EXT" ]; then
+            FAV_FILE="$DIR/$RAW_NAME.$P8_EXT"
+            break
+        fi
+    done
     DEST_FILE="$STORAGE_DIR/$GOOD_NAME.$DEST_EXT"
     BOXART_FILE="$BOXART_DIR/$GOOD_NAME.$PNG_EXT"
-
-    if [ -f "$FAV_FILE" ]; then
+    if [ -n "$FAV_FILE" ]; then
         cp "$FAV_FILE" "$DEST_FILE"
         cp "$FAV_FILE" "$BOXART_FILE"
     fi
 done <"$FAVOURITE"
+
