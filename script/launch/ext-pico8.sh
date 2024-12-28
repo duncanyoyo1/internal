@@ -104,13 +104,14 @@ while IFS='|' read -r _ RAW_NAME _ _ _ GOOD_NAME; do
     DEST_EXT="p8"
     PNG_EXT="png"
     FAV_FILE=""
-
+    
     for DIR in "$CART_DIR" "$CART_DIR"/*; do
         if [ -f "$DIR/$RAW_NAME.$P8_EXT" ]; then
             FAV_FILE="$DIR/$RAW_NAME.$P8_EXT"
             break
         fi
     done
+    
     DEST_FILE="$STORAGE_DIR/$GOOD_NAME.$DEST_EXT"
     BOXART_FILE="$BOXART_DIR/$GOOD_NAME.$PNG_EXT"
     if [ -n "$FAV_FILE" ]; then
