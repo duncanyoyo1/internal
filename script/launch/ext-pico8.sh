@@ -87,6 +87,10 @@ for DIR in "$USB" "$SD2" "$SD1"; do
         P8_DIR="PICO-8"
         STORAGE_DIR="$DIR/$P8_DIR"
         break
+    elif [ -d "$DIR/PICO8" ]; then
+        P8_DIR="PICO8"
+        STORAGE_DIR="$DIR/$P8_DIR"
+        break
     fi
 done
 [ -z "$STORAGE_DIR" ] && exit 1
@@ -98,22 +102,29 @@ BOXART_DIR="/run/muos/storage/info/catalogue/PICO-8/box"
 # TODO: Work out what these other fields mean?! (maybe useful?)
 while IFS='|' read -r _ RAW_NAME _ _ _ GOOD_NAME; do
     [ -z "$GOOD_NAME" ] || [ -z "$RAW_NAME" ] && continue
+
+    # Clean up the names
     RAW_NAME=$(echo "$RAW_NAME" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/[[:space:]]\+//g')
     GOOD_NAME=$(echo "$GOOD_NAME" | sed -E 's/.*\|//;s/^[[:space:]]+|[[:space:]]+$//;s/\b(.)/\u\1/g')
+    
     P8_EXT="p8.png"
     DEST_EXT="p8"
     PNG_EXT="png"
     FAV_FILE=""
-    
-    for DIR in "$CART_DIR" "$CART_DIR"/*; do
+
+    # Look for the favorite file in all subdirectories, including `bbs`
+    for DIR in "$CART_DIR" "$CART_DIR"/* "$CART_DIR"/.lexaloffle/pico-8/bbs/*; do
         if [ -f "$DIR/$RAW_NAME.$P8_EXT" ]; then
             FAV_FILE="$DIR/$RAW_NAME.$P8_EXT"
             break
         fi
     done
-    
+
+    # Destination and boxart files
     DEST_FILE="$STORAGE_DIR/$GOOD_NAME.$DEST_EXT"
     BOXART_FILE="$BOXART_DIR/$GOOD_NAME.$PNG_EXT"
+
+    # Copy the files if a favorite file is found
     if [ -n "$FAV_FILE" ]; then
         cp "$FAV_FILE" "$DEST_FILE"
         cp "$FAV_FILE" "$BOXART_FILE"
